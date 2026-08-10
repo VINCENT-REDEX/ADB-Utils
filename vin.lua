@@ -167,7 +167,7 @@ _G.XthrlenState = _G.XthrlenState or {
     PrevGraphicsState = {}
 }
 
-local limitTime = os.time({ year = 2026, month = 7, day = 30, hour = 23, min = 59, sec = 0 })
+local limitTime = os.time({ year = 2026, month = 10, day = 30, hour = 23, min = 59, sec = 0 })
 local currentTime = os.time(os.date("!*t"))
 local isExpired = false
 
