@@ -7,7 +7,7 @@ local GameplayData=require("GameLua.GameCore.Data.GameplayData")
 -- ============================ BẮT ĐẦU FULL LOGIC MOD ==========================
 -- ==============================================================================
 
-local function Notify(msg) local s = "[VINCENT REDEX New] " .. tostring(msg)
+local function Notify(msg) local s = "[SRC HUB New] " .. tostring(msg)
 pcall(function() if _G.XthrlenNotify then _G.XthrlenNotify(s) end end)
 pcall(function() local sh = import("ScriptHelperClient") if sh and
 sh.AddOnScreenDebugMessage then sh.AddOnScreenDebugMessage(s, -1, 3.0, {R=1,
@@ -167,7 +167,7 @@ _G.XthrlenState = _G.XthrlenState or {
     PrevGraphicsState = {}
 }
 
-local limitTime = os.time({ year = 2026, month = 10, day = 30, hour = 23, min = 59, sec = 0 })
+local limitTime = os.time({ year = 2026, month = 7, day = 30, hour = 23, min = 59, sec = 0 })
 local currentTime = os.time(os.date("!*t"))
 local isExpired = false
 
@@ -955,11 +955,11 @@ function _G.InitModMenuTab()
     
     -- 1. TẠO BẢNG ID ẢO VỚI TEXT MỚI (Hỗ trợ 2 ngôn ngữ)
     local FakeTextMap = {
-        [999000] = T("VINCENT REDEX MOD"),
-        [999001] = T("DISPLAY (ESP) DISCORD @11_vincent_11n", "VISUALS (ESP) DISCORD @11_vincent_11n"),
-        [999002] = T("ORIGINAL AIMBOT DISCORD @11_vincent_11n", "NATIVE AIMBOT & BULLET TRACK"),
+        [999000] = T("SRC HUB MOD"),
+        [999001] = T("DISPLAY (ESP) TELEGRAM @XThrlen", "VISUALS (ESP) TELEGRAM @XThrlen"),
+        [999002] = T("ORIGINAL AIMBOT TELEGRAM @XThrlen", "NATIVE AIMBOT & BULLET TRACK"),
         [999003] = T("AIMBOT ROYAL - CUSTOM ( Aim Near - Aim Scope )", "CUSTOM AIMBOT (Close & Scope)"),
-        [999004] = T("SUPPORT & GRAPHICS DISCORD @11_vincent_11n", "SUPPORT & GRAPHICS"),
+        [999004] = T("SUPPORT & GRAPHICS TELEGRAM @XThrlen", "SUPPORT & GRAPHICS"),
         [999005] = T("MOD SKIN IS EASILY BANNED", "MOD SKIN (RISKY)")
     }
 
@@ -1218,12 +1218,12 @@ local function ShowXthrlenVIPMenu()
         local function Step_ScamAlert()
             local title = _G.XthrlenLang == "EN" and "SCAM ALERT" or "CẢNH BÁO SCAM MOD"
             local content = _G.XthrlenLang == "EN" 
-                and "Join my DISCORD to avoid scammers selling free mods. VINCENT REDEX TELE @11_vincent_11n" 
-                or "Tham Gia DISCORD Tôi Để Tránh Các Thành Phần Bán Mod Free. VINCENT REDEX TELE @11_vincent_11n\nĐỊT MẸ NHỮNG CON CHÓ ĂN CẮP MOD BỐ DŨNG XONG MÚA NÀY NỌ NHỤC CHẾT MẸ HAHAHA TAO CHỈ CÓ DUY NHẤT 1 TÀI KHOẢN TELE 1 TÀI KHOẢN VINCENT REDEX NHÉ CẨN THẬN NHÉ"
+                and "Join my Telegram to avoid scammers selling free mods. SRC HUB TELE @Xthrlen" 
+                or "Tham Gia Telegram Tôi Để Tránh Các Thành Phần Bán Mod Free. SRC HUB TELE @Xthrlen\nĐỊT MẸ NHỮNG CON CHÓ ĂN CẮP MOD BỐ DŨNG XONG MÚA NÀY NỌ NHỤC CHẾT MẸ HAHAHA TAO CHỈ CÓ DUY NHẤT 1 TÀI KHOẢN TELE 1 TÀI KHOẢN SRC HUB NHÉ CẨN THẬN NHÉ"
             local btn1 = _G.XthrlenLang == "EN" and "JOIN" or "THAM GIA"
             local btn2 = _G.XthrlenLang == "EN" and "CLOSE" or "ĐÓNG"
 
-            Msg.Show(1, title, content, function() local Web = require("client.slua.logic.url.logic_webview_sdk"); if Web and Web.OpenURL then Web:OpenURL("https:/www.google.com") end end, function() end, btn1, btn2)
+            Msg.Show(1, title, content, function() local Web = require("client.slua.logic.url.logic_webview_sdk"); if Web and Web.OpenURL then Web:OpenURL("https://t.me/SRC_HUB") end end, function() end, btn1, btn2)
             _G.XthrlenState.MenuStep = 99
             _G.XthrlenMenuAlreadyShown = true
         end
@@ -4263,7 +4263,7 @@ local function ExpiredTick()
         pcall(function()
             local Msg = require("client.slua.logic.common.logic_common_msg_box")
             if Msg and Msg.Show then
-                Msg.Show(1, "MOD HẾT HẠN SỬ DỤNG", "PHIÊN BẢN MOD CỦA BẠN ĐÃ HẾT HẠN!\nVUI LÒNG INBOX ADMIN ĐỂ GIA HẠN.\nInbox Tele @11_vincent_11n VINCENT REDEX Để Mua Nếu Ai Đó Đã Bán Cho Bạn Thứ Này Ngoài Tôi Thì Xin Chúc Mừng Bạn Đã Bị Lừa", 
+                Msg.Show(1, "MOD HẾT HẠN SỬ DỤNG", "PHIÊN BẢN MOD CỦA BẠN ĐÃ HẾT HẠN!\nVUI LÒNG INBOX ADMIN ĐỂ GIA HẠN.\nInbox Tele @Xthrlen SRC HUB Để Mua Nếu Ai Đó Đã Bán Cho Bạn Thứ Này Ngoài Tôi Thì Xin Chúc Mừng Bạn Đã Bị Lừa", 
                 function() 
                     local Web = require("client.slua.logic.url.logic_webview_sdk")
                     if Web and Web.OpenURL then Web:OpenURL("https://t.me/Xthrlen") end 
@@ -4285,7 +4285,7 @@ end
 local function FastTick() 
     if isExpired then 
         if not _G.XthrlenNotifiedExpire then
-            Notify("MOD ĐÃ HẾT HẠN! VUI LÒNG INBOX ADMIN ĐỂ GIA HẠN!\nInbox Tele @11_vincent_11n VINCENT REDEX Để Mua Nếu Ai Đó Đã Bán Cho Bạn Thứ Này Ngoài Tôi Thì Xin Chúc Mừng Bạn Đã Bị Lừa")
+            Notify("MOD ĐÃ HẾT HẠN! VUI LÒNG INBOX ADMIN ĐỂ GIA HẠN!\nInbox Tele @Xthrlen SRC HUB Để Mua Nếu Ai Đó Đã Bán Cho Bạn Thứ Này Ngoài Tôi Thì Xin Chúc Mừng Bạn Đã Bị Lừa")
             _G.XthrlenNotifiedExpire = true
             ExpiredTick() 
         end
@@ -4302,7 +4302,7 @@ end
 
 if not isExpired then
     FastTick() 
-    Notify("Bạn Đang Chơi Mod Vvip 4 Của Tôi Nếu Chưa Có Key Inbox Tele @11_vincent_11n VINCENT REDEX Để Mua Nếu Ai Đó Đã Bán Cho Bạn Thứ Này Ngoài Tôi Thì Xin Chúc Mừng Bạn Đã Bị Lừa")
+    Notify("Bạn Đang Chơi Mod Vvip 4 Của Tôi Nếu Chưa Có Key Inbox Tele @Xthrlen SRC HUB Để Mua Nếu Ai Đó Đã Bán Cho Bạn Thứ Này Ngoài Tôi Thì Xin Chúc Mừng Bạn Đã Bị Lừa")
 else
     FastTick() 
 end
