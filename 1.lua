@@ -1311,58 +1311,63 @@ function _G.InitModMenuTab()
 end
 
 local function ShowXthrlenVIPMenu() 
-    -- Prevent showing multiple times
     if _G.XthrlenMenuAlreadyShown then return end
-
-    -- Always default to English
-    _G.XthrlenLang = "EN"
+    if _G.XthrlenState.MenuStep ~= 0 then return end
 
     pcall(function()
         local Msg = require("client.slua.logic.common.logic_common_msg_box")
         if not Msg or not Msg.Show then return end
 
-        -- Scam alert step (branding VINCENT)
         local function Step_ScamAlert()
-            local title = "VINCENT"
-            local content = "VINCENT REDEX ENGINE LOADED !"
-            local btn1 = "JOIN"
-            local btn2 = "CLOSE"
+            local title = _G.XthrlenLang == "EN" and "REDEx Engine" or "CẢNH BÁO SCAM MOD"
+            local content = _G.XthrlenLang == "EN" 
+                and "VINCENT REDEx Engine Loaded !" 
+                or "Tham Gia Telegram Tôi Để Tránh Các Thành Phần Bán Mod Free. SRC HUB TELE @Xthrlen\nĐỊT MẸ NHỮNG CON CHÓ ĂN CẮP MOD BỐ DŨNG XONG MÚA NÀY NỌ NHỤC CHẾT MẸ HAHAHA TAO CHỈ CÓ DUY NHẤT 1 TÀI KHOẢN TELE 1 TÀI KHOẢN SRC HUB NHÉ CẨN THẬN NHÉ"
+            local btn1 = _G.XthrlenLang == "EN" and "JOIN" or "THAM GIA"
+            local btn2 = _G.XthrlenLang == "EN" and "CLOSE" or "ĐÓNG"
 
-            Msg.Show(1, title, content, 
-                function() 
-                    local Web = require("client.slua.logic.url.logic_webview_sdk")
-                    if Web and Web.OpenURL then 
-                        Web:OpenURL("https://t.me/SRC_HUB") 
-                    end 
-                end, 
-                function() end, btn1, btn2)
-
+            Msg.Show(1, title, content, function() local Web = require("client.slua.logic.url.logic_webview_sdk"); if Web and Web.OpenURL then Web:OpenURL("https://t.me/SRC_HUB") end end, function() end, btn1, btn2)
             _G.XthrlenState.MenuStep = 99
             _G.XthrlenMenuAlreadyShown = true
         end
 
-        -- Welcome step (always English, always adds VIP menu)
         local function Step_Welcome()
-            local title = "WELCOME TO VINCENT VIP MOD"
-            local content = "Hi, VINCENT here. The VIP MENU is now inside Game Settings!\nIMPORTANT: Enable fewer features to avoid lag. Play safe!"
-            local btn1 = "OPEN GAME MENU"
-            local btn2 = "CLOSE"
+            local title = _G.XthrlenLang == "EN" and "WELCOME TO VIP MOD" or "CHÀO MỪNG MÀY"
+            local content = _G.XthrlenLang == "EN" 
+                and "Hi, VINCENT here. The VIP MENU is now inside Game Settings!\nIMPORTANT: Enable fewer features to avoid lag. Play safe!" 
+                or "Này Tao Là Dũng Đây. Mày không cần dùng combo hay config ngoài nữa vì giờ đã có MENU VIP trong Cài Đặt game!\nNHƯNG MÀY HÃY NGHE TAO NÓI NÀY, BẬT ÍT CHỨC NĂNG THÔI LAG LẮM HIỂU KHÔNG TAO SỢ MÁY MÀY CHỊU ĐÉO NỔI THÔI, VỚI LẠI BẮN ĐỪNG LỘ BẮN KỸ TÍ LÀ SAFE"
+            local btn1 = _G.XthrlenLang == "EN" and "OPEN GAME MENU" or "MỞ MENU TRONG GAME"
+            local btn2 = _G.XthrlenLang == "EN" and "CLOSE" or "ĐÓNG"
 
             Msg.Show(1, title, content, 
-                function() 
-                    _G.InitModMenuTab()
-                    Notify("VINCENT VIP MOD MENU ADDED!\nOpen Settings (Gear icon) -> VIP MOD MENU to toggle features.")
-                    Step_ScamAlert()
-                end, 
-                function() end, btn1, btn2)
+            function() 
+                _G.InitModMenuTab()
+                if _G.XthrlenLang == "EN" then
+                    Notify("VIP MOD MENU ADDED!\nOpen Settings (Gear icon) -> VIP MOD MENU to toggle features.")
+                else
+                    Notify("ĐÃ THÊM 'VIP MOD MENU' VÀO PHẦN CÀI ĐẶT CỦA GAME!\nHãy mở Cài Đặt (Răng Cưa) -> VIP MOD MENU để bật/tắt.")
+                end
+                Step_ScamAlert()
+            end, 
+            function() end, btn1, btn2)
         end
 
-        -- Directly show welcome (skip language selection)
+        local function Step_SelectLanguage()
+            Msg.Show(2, "SELECT LANGUAGE / CHỌN NGÔN NGỮ", "Please select your preferred language.\nVui lòng chọn ngôn ngữ bạn muốn sử dụng.",
+            function()
+                _G.XthrlenLang = "VN"
+                Step_Welcome()
+            end,
+            function()
+                _G.XthrlenLang = "EN"
+                Step_Welcome()
+            end, "TIẾNG VIỆT", "ENGLISH")
+        end
+
         _G.XthrlenState.MenuStep = 1
-        Step_Welcome()
+        Step_SelectLanguage() 
     end)
 end
-
 
 -- ========================================== 
 -- LOGIC MỞ KHÓA 165 FPS VÀ UI IPAD VIEW 
