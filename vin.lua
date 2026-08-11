@@ -955,11 +955,11 @@ function _G.InitModMenuTab()
     
     -- 1. TẠO BẢNG ID ẢO VỚI TEXT MỚI (Hỗ trợ 2 ngôn ngữ)
     local FakeTextMap = {
-        [999000] = T("SRC HUB MOD"),
-        [999001] = T("DISPLAY (ESP) TELEGRAM @XThrlen", "VISUALS (ESP) TELEGRAM @XThrlen"),
-        [999002] = T("ORIGINAL AIMBOT TELEGRAM @XThrlen", "NATIVE AIMBOT & BULLET TRACK"),
+        [999000] = T("VINCENT REDEX ENGINE"),
+        [999001] = T("ESP INTEGRATED", "AIMBOT INTEGRATED"),
+        [999002] = T("ORIGINAL AIMBOT", "NATIVE AIMBOT & BULLET TRACK"),
         [999003] = T("AIMBOT ROYAL - CUSTOM ( Aim Near - Aim Scope )", "CUSTOM AIMBOT (Close & Scope)"),
-        [999004] = T("SUPPORT & GRAPHICS TELEGRAM @XThrlen", "SUPPORT & GRAPHICS"),
+        [999004] = T("SUPPORT & GRAPHICS ", "SUPPORT & GRAPHICS"),
         [999005] = T("MOD SKIN IS EASILY BANNED", "MOD SKIN (RISKY)")
     }
 
