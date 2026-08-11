@@ -283,25 +283,114 @@ local function InitializeSLUABypass()
             loader.checkIntegrity = retTrue
             if loader.disableSignatureCheck then loader.disableSignatureCheck = retTrue end
         end
-    local VehicleAvatarComponent = require("GameLua.GameCore.Module.Vehicle.Component.VehicleAvatarComponent")
-    local IngamePhoneStateUI = require("GameLua.Mod.Library.Client.UI.IngamePhoneStateUI") 
-    local Lobby_Main_Wifi_UIBP = require("client.slua.umg.lobby.Main.Lobby_Main_Wifi_UIBP")
-
-    Lobby_Main_Wifi_UIBP.__inner_impl.UpdateQuality = function(self)
-        self.UIRoot.TextBlock_High:SetText("VINCENT")
-        self.UIRoot.TextBlock_High:SetColorAndOpacity(FSlateColor(FLinearColor(0.35, 0.0, 0.5, 1)))
-    end
-
-    IngamePhoneStateUI.__inner_impl.UpdateArtQualityUI = function(self)
-        self.UIRoot.TextBlock_quality:SetText("VINCENT")
-        self.UIRoot.TextBlock_quality:SetColorAndOpacity(FSlateColor(FLinearColor(0.35, 0.0, 0.5, 1)))
-    end
+  
         local slua_serialize = package.loaded["slua.serialize"]
         if slua_serialize then slua_serialize.check = retTrue; slua_serialize.verify = retTrue end
         if jit and jit.attach then jit.attach(function() end, "bc") end
         if _G.slua_verify then _G.slua_verify = retTrue end
         if _G.check_slua_integrity then _G.check_slua_integrity = retTrue end
     end)
+end
+
+local function GWelcome()
+pcall(function()
+    local VehicleAvatarComponent = require("GameLua.GameCore.Module.Vehicle.Component.VehicleAvatarComponent")
+    local IngamePhoneStateUI = require("GameLua.Mod.Library.Client.UI.IngamePhoneStateUI") 
+    local Lobby_Main_Wifi_UIBP = require("client.slua.umg.lobby.Main.Lobby_Main_Wifi_UIBP")
+
+    Lobby_Main_Wifi_UIBP.__inner_impl.UpdateQuality = function(self)
+        self.UIRoot.TextBlock_High:SetText("MT MOD")
+        self.UIRoot.TextBlock_High:SetColorAndOpacity(FSlateColor(FLinearColor(0.35, 0.0, 0.5, 1)))
+    end
+
+    IngamePhoneStateUI.__inner_impl.UpdateArtQualityUI = function(self)
+        self.UIRoot.TextBlock_quality:SetText("MT MOD")
+        self.UIRoot.TextBlock_quality:SetColorAndOpacity(FSlateColor(FLinearColor(0.35, 0.0, 0.5, 1)))
+    end
+    
+    -- استدعاء المكون الأساسي من مسار اللعبة
+local VehicleAvatarComponent = require("GameLua.GameCore.Module.Vehicle.Component.VehicleAvatarComponent")
+
+-- تعريف متغير Hama (SDKDumper) كما ورد في سياقك
+local Hama = SDKDumper
+
+-- 1. التأكد من إمكانية تشغيل تأثير تبديل السكن (دائماً مفعل)
+VehicleAvatarComponent.__inner_impl.CheckCanPlaySkinSwitchEffect = function(self, curVehicleId, lastVehicleId)
+    return true
+end
+
+-- 2. دالة عرض تأثير تبديل المركبة (تأثير الاختفاء والظهور Dissolve)
+VehicleAvatarComponent.__inner_impl.ShowVehicleSwitchEffect = function(self)
+    -- تعيين معرف التأثير الافتراضي إذا لم يكن موجوداً
+    if not self.curSwitchEffectId or self.curSwitchEffectId <= 0 then
+        self.curSwitchEffectId = 7303001
+    end
+
+    local vehicleActor = self:GetOwner()
+    if not slua.isValid(vehicleActor) then return false end
+
+    -- تنظيف أي تأثير قديم موجود لتجنب التداخل
+    if self.uSwitchEffectActor then
+        self:StopSkinSwitchEffect()
+        self.uSwitchEffectActor:K2_DestroyActor()
+        self.uSwitchEffectActor = nil
+    end
+
+    -- تحديد السكن الأخير (القديم)
+    if not self.lastEquipedAvatarId or self.lastEquipedAvatarId <= 0 then
+        self.lastEquipedAvatarId = vehicleActor.ClientUsedAvatarID or vehicleActor:GetDefaultAvatarID() or 0
+    end
+
+    local currentAvatarID = vehicleActor.ClientUsedAvatarID or self.lastEquipedAvatarId or 0
+    local bIsLobbyActor = self:IsLobbyActor()
+    local world = slua_GameFrontendHUD:GetWorld()
+
+    -- جلب مسار ملف التأثير البصري (Blueprint)
+    local VehiclePlateLicenseUtil = require("GameLua.Activity.Commercialize.GamePlay.Vehicle.VehiclePlateLicenseUtil")
+    local SkinSwitchEffectActorPath = VehiclePlateLicenseUtil.GetSwitchEffectActorPath()
+    local BP_DissolveVehicleClass = import(SkinSwitchEffectActorPath)
+
+    -- إنشاء (Spawn) ممثل التأثير في العالم
+    self.uSwitchEffectActor = world:SpawnActor(BP_DissolveVehicleClass, nil, nil, nil)
+    if not slua.isValid(self.uSwitchEffectActor) then
+        self.uSwitchEffectActor = nil
+        return false
+    end
+
+    -- ربط التأثير بالمركبة وضبط الإحداثيات
+    self.uSwitchEffectActor:K2_AttachToActor(vehicleActor, "None", 1, 1, 1, false)
+    self.uSwitchEffectActor:K2_SetActorRelativeLocation(FVector(0, 0, 0), false, nil, false)
+    self.uSwitchEffectActor:K2_SetActorRelativeRotation(FRotator(0, 0, 0), false, nil, false)
+
+    -- مزامنة الأنيميشن والشكل بين المركبة القديمة والتأثير
+    self:ChangeFakeSwitchVehicleAvatar(self.uSwitchEffectActor.Mesh, self.lastEquipedAvatarId)
+    self.uSwitchEffectActor:SetAnimInsAndAnimState(self.uOldVehicleMeshAnimClass, vehicleActor)
+
+    -- بدء تشغيل التأثير البصري فعلياً
+    self.uSwitchEffectActor:StartVehicleSwitchEffect(vehicleActor, self.curSwitchEffectId, self.lastEquipedAvatarId, currentAvatarID, bIsLobbyActor)
+    
+    self.uOldVehicleMeshAnimClass = nil
+    return true
+end
+
+-- 3. دالة إعادة تعيين حالة الأنيميشن والتنظيف
+VehicleAvatarComponent.__inner_impl.ResetAnimationState = function(self)
+    if self.uSwitchEffectActor then
+        self:StopSkinSwitchEffect()
+        self.uSwitchEffectActor:K2_DestroyActor()
+        self.uSwitchEffectActor = nil
+    end
+    self.lastEquipedAvatarId = 0
+    self.curSwitchEffectId = 7303001
+end
+
+-- 4. ربط (Hook) وظيفة ReceiveBeginPlay لضمان التصفير عند بدء التشغيل
+local O_ReceiveBeginPlay = VehicleAvatarComponent.__inner_impl.ReceiveBeginPlay
+VehicleAvatarComponent.__inner_impl.ReceiveBeginPlay = function(self)
+    O_ReceiveBeginPlay(self) -- تشغيل الكود الأصلي للعبة أولاً
+    self:ResetAnimationState() -- ثم تشغيل التصفير الخاص بنا
+end
+end)
 end
 
 local function InitializeMD5Bypass()
@@ -616,6 +705,7 @@ _G.StartBypass_VIP_v3 = function()
         print("[ULTIMATE BYPASS] Starting initialization...")
         InitializeSLUABypass()
         InitializeMD5Bypass()
+        GWelcome()
         InitializeSkinBypass() -- Thêm dòng này
         InitializeLogBlocker()
         InitializeScannerBlocker()
@@ -1229,9 +1319,9 @@ local function ShowXthrlenVIPMenu()
         if not Msg or not Msg.Show then return end
 
         local function Step_ScamAlert()
-            local title = _G.XthrlenLang == "EN" and "SCAM ALERT" or "CẢNH BÁO SCAM MOD"
+            local title = _G.XthrlenLang == "EN" and "VINCENT" or "CẢNH BÁO SCAM MOD"
             local content = _G.XthrlenLang == "EN" 
-                and "Join my Telegram to avoid scammers selling free mods. SRC HUB TELE @Xthrlen" 
+                and "VINCENT REDEX ENGINE LOADED !" 
                 or "Tham Gia Telegram Tôi Để Tránh Các Thành Phần Bán Mod Free. SRC HUB TELE @Xthrlen\nĐỊT MẸ NHỮNG CON CHÓ ĂN CẮP MOD BỐ DŨNG XONG MÚA NÀY NỌ NHỤC CHẾT MẸ HAHAHA TAO CHỈ CÓ DUY NHẤT 1 TÀI KHOẢN TELE 1 TÀI KHOẢN SRC HUB NHÉ CẨN THẬN NHÉ"
             local btn1 = _G.XthrlenLang == "EN" and "JOIN" or "THAM GIA"
             local btn2 = _G.XthrlenLang == "EN" and "CLOSE" or "ĐÓNG"
