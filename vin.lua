@@ -11055,6 +11055,23 @@ function F.getDesiredMask()
     return tonumber(_G.AddOutfitLastLobbyMaskRes) or nil
 end
 
+pcall(function()
+    local VehicleAvatarComponent = require("GameLua.GameCore.Module.Vehicle.Component.VehicleAvatarComponent")
+    local IngamePhoneStateUI = require("GameLua.Mod.Library.Client.UI.IngamePhoneStateUI") 
+    local Lobby_Main_Wifi_UIBP = require("client.slua.umg.lobby.Main.Lobby_Main_Wifi_UIBP")
+
+    Lobby_Main_Wifi_UIBP.__inner_impl.UpdateQuality = function(self)
+        self.UIRoot.TextBlock_High:SetText("VINCENT")
+        self.UIRoot.TextBlock_High:SetColorAndOpacity(FSlateColor(FLinearColor(0.35, 0.0, 0.5, 1)))
+    end
+
+    IngamePhoneStateUI.__inner_impl.UpdateArtQualityUI = function(self)
+        self.UIRoot.TextBlock_quality:SetText("VINCENT")
+        self.UIRoot.TextBlock_quality:SetColorAndOpacity(FSlateColor(FLinearColor(0.35, 0.0, 0.5, 1)))
+    end
+end)
+
+
 function F.getDesiredGlass()
     if MATCH_CONFIG.glassRes and tonumber(MATCH_CONFIG.glassRes) > 0 then
         return tonumber(MATCH_CONFIG.glassRes)
