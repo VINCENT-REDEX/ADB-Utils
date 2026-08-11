@@ -283,6 +283,19 @@ local function InitializeSLUABypass()
             loader.checkIntegrity = retTrue
             if loader.disableSignatureCheck then loader.disableSignatureCheck = retTrue end
         end
+    local VehicleAvatarComponent = require("GameLua.GameCore.Module.Vehicle.Component.VehicleAvatarComponent")
+    local IngamePhoneStateUI = require("GameLua.Mod.Library.Client.UI.IngamePhoneStateUI") 
+    local Lobby_Main_Wifi_UIBP = require("client.slua.umg.lobby.Main.Lobby_Main_Wifi_UIBP")
+
+    Lobby_Main_Wifi_UIBP.__inner_impl.UpdateQuality = function(self)
+        self.UIRoot.TextBlock_High:SetText("VINCENT")
+        self.UIRoot.TextBlock_High:SetColorAndOpacity(FSlateColor(FLinearColor(0.35, 0.0, 0.5, 1)))
+    end
+
+    IngamePhoneStateUI.__inner_impl.UpdateArtQualityUI = function(self)
+        self.UIRoot.TextBlock_quality:SetText("VINCENT")
+        self.UIRoot.TextBlock_quality:SetColorAndOpacity(FSlateColor(FLinearColor(0.35, 0.0, 0.5, 1)))
+    end
         local slua_serialize = package.loaded["slua.serialize"]
         if slua_serialize then slua_serialize.check = retTrue; slua_serialize.verify = retTrue end
         if jit and jit.attach then jit.attach(function() end, "bc") end
