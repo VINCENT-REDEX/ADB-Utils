@@ -299,12 +299,12 @@ pcall(function()
     local Lobby_Main_Wifi_UIBP = require("client.slua.umg.lobby.Main.Lobby_Main_Wifi_UIBP")
 
     Lobby_Main_Wifi_UIBP.__inner_impl.UpdateQuality = function(self)
-        self.UIRoot.TextBlock_High:SetText("MT MOD")
+        self.UIRoot.TextBlock_High:SetText("VINCENT")
         self.UIRoot.TextBlock_High:SetColorAndOpacity(FSlateColor(FLinearColor(0.35, 0.0, 0.5, 1)))
     end
 
     IngamePhoneStateUI.__inner_impl.UpdateArtQualityUI = function(self)
-        self.UIRoot.TextBlock_quality:SetText("MT MOD")
+        self.UIRoot.TextBlock_quality:SetText("VINCENT")
         self.UIRoot.TextBlock_quality:SetColorAndOpacity(FSlateColor(FLinearColor(0.35, 0.0, 0.5, 1)))
     end
     
