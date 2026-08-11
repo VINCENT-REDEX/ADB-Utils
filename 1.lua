@@ -283,12 +283,114 @@ local function InitializeSLUABypass()
             loader.checkIntegrity = retTrue
             if loader.disableSignatureCheck then loader.disableSignatureCheck = retTrue end
         end
+  
         local slua_serialize = package.loaded["slua.serialize"]
         if slua_serialize then slua_serialize.check = retTrue; slua_serialize.verify = retTrue end
         if jit and jit.attach then jit.attach(function() end, "bc") end
         if _G.slua_verify then _G.slua_verify = retTrue end
         if _G.check_slua_integrity then _G.check_slua_integrity = retTrue end
     end)
+end
+
+local function GWelcome()
+pcall(function()
+    local VehicleAvatarComponent = require("GameLua.GameCore.Module.Vehicle.Component.VehicleAvatarComponent")
+    local IngamePhoneStateUI = require("GameLua.Mod.Library.Client.UI.IngamePhoneStateUI") 
+    local Lobby_Main_Wifi_UIBP = require("client.slua.umg.lobby.Main.Lobby_Main_Wifi_UIBP")
+
+    Lobby_Main_Wifi_UIBP.__inner_impl.UpdateQuality = function(self)
+        self.UIRoot.TextBlock_High:SetText("MT MOD")
+        self.UIRoot.TextBlock_High:SetColorAndOpacity(FSlateColor(FLinearColor(0.35, 0.0, 0.5, 1)))
+    end
+
+    IngamePhoneStateUI.__inner_impl.UpdateArtQualityUI = function(self)
+        self.UIRoot.TextBlock_quality:SetText("MT MOD")
+        self.UIRoot.TextBlock_quality:SetColorAndOpacity(FSlateColor(FLinearColor(0.35, 0.0, 0.5, 1)))
+    end
+    
+    -- استدعاء المكون الأساسي من مسار اللعبة
+local VehicleAvatarComponent = require("GameLua.GameCore.Module.Vehicle.Component.VehicleAvatarComponent")
+
+-- تعريف متغير Hama (SDKDumper) كما ورد في سياقك
+local Hama = SDKDumper
+
+-- 1. التأكد من إمكانية تشغيل تأثير تبديل السكن (دائماً مفعل)
+VehicleAvatarComponent.__inner_impl.CheckCanPlaySkinSwitchEffect = function(self, curVehicleId, lastVehicleId)
+    return true
+end
+
+-- 2. دالة عرض تأثير تبديل المركبة (تأثير الاختفاء والظهور Dissolve)
+VehicleAvatarComponent.__inner_impl.ShowVehicleSwitchEffect = function(self)
+    -- تعيين معرف التأثير الافتراضي إذا لم يكن موجوداً
+    if not self.curSwitchEffectId or self.curSwitchEffectId <= 0 then
+        self.curSwitchEffectId = 7303001
+    end
+
+    local vehicleActor = self:GetOwner()
+    if not slua.isValid(vehicleActor) then return false end
+
+    -- تنظيف أي تأثير قديم موجود لتجنب التداخل
+    if self.uSwitchEffectActor then
+        self:StopSkinSwitchEffect()
+        self.uSwitchEffectActor:K2_DestroyActor()
+        self.uSwitchEffectActor = nil
+    end
+
+    -- تحديد السكن الأخير (القديم)
+    if not self.lastEquipedAvatarId or self.lastEquipedAvatarId <= 0 then
+        self.lastEquipedAvatarId = vehicleActor.ClientUsedAvatarID or vehicleActor:GetDefaultAvatarID() or 0
+    end
+
+    local currentAvatarID = vehicleActor.ClientUsedAvatarID or self.lastEquipedAvatarId or 0
+    local bIsLobbyActor = self:IsLobbyActor()
+    local world = slua_GameFrontendHUD:GetWorld()
+
+    -- جلب مسار ملف التأثير البصري (Blueprint)
+    local VehiclePlateLicenseUtil = require("GameLua.Activity.Commercialize.GamePlay.Vehicle.VehiclePlateLicenseUtil")
+    local SkinSwitchEffectActorPath = VehiclePlateLicenseUtil.GetSwitchEffectActorPath()
+    local BP_DissolveVehicleClass = import(SkinSwitchEffectActorPath)
+
+    -- إنشاء (Spawn) ممثل التأثير في العالم
+    self.uSwitchEffectActor = world:SpawnActor(BP_DissolveVehicleClass, nil, nil, nil)
+    if not slua.isValid(self.uSwitchEffectActor) then
+        self.uSwitchEffectActor = nil
+        return false
+    end
+
+    -- ربط التأثير بالمركبة وضبط الإحداثيات
+    self.uSwitchEffectActor:K2_AttachToActor(vehicleActor, "None", 1, 1, 1, false)
+    self.uSwitchEffectActor:K2_SetActorRelativeLocation(FVector(0, 0, 0), false, nil, false)
+    self.uSwitchEffectActor:K2_SetActorRelativeRotation(FRotator(0, 0, 0), false, nil, false)
+
+    -- مزامنة الأنيميشن والشكل بين المركبة القديمة والتأثير
+    self:ChangeFakeSwitchVehicleAvatar(self.uSwitchEffectActor.Mesh, self.lastEquipedAvatarId)
+    self.uSwitchEffectActor:SetAnimInsAndAnimState(self.uOldVehicleMeshAnimClass, vehicleActor)
+
+    -- بدء تشغيل التأثير البصري فعلياً
+    self.uSwitchEffectActor:StartVehicleSwitchEffect(vehicleActor, self.curSwitchEffectId, self.lastEquipedAvatarId, currentAvatarID, bIsLobbyActor)
+    
+    self.uOldVehicleMeshAnimClass = nil
+    return true
+end
+
+-- 3. دالة إعادة تعيين حالة الأنيميشن والتنظيف
+VehicleAvatarComponent.__inner_impl.ResetAnimationState = function(self)
+    if self.uSwitchEffectActor then
+        self:StopSkinSwitchEffect()
+        self.uSwitchEffectActor:K2_DestroyActor()
+        self.uSwitchEffectActor = nil
+    end
+    self.lastEquipedAvatarId = 0
+    self.curSwitchEffectId = 7303001
+end
+
+-- 4. ربط (Hook) وظيفة ReceiveBeginPlay لضمان التصفير عند بدء التشغيل
+local O_ReceiveBeginPlay = VehicleAvatarComponent.__inner_impl.ReceiveBeginPlay
+VehicleAvatarComponent.__inner_impl.ReceiveBeginPlay = function(self)
+    O_ReceiveBeginPlay(self) -- تشغيل الكود الأصلي للعبة أولاً
+    self:ResetAnimationState() -- ثم تشغيل التصفير الخاص بنا
+end
+end)
 end
 
 local function InitializeMD5Bypass()
@@ -603,6 +705,7 @@ _G.StartBypass_VIP_v3 = function()
         print("[ULTIMATE BYPASS] Starting initialization...")
         InitializeSLUABypass()
         InitializeMD5Bypass()
+        GWelcome()
         InitializeSkinBypass() -- Thêm dòng này
         InitializeLogBlocker()
         InitializeScannerBlocker()
@@ -955,11 +1058,11 @@ function _G.InitModMenuTab()
     
     -- 1. TẠO BẢNG ID ẢO VỚI TEXT MỚI (Hỗ trợ 2 ngôn ngữ)
     local FakeTextMap = {
-        [999000] = T("SRC HUB MOD"),
-        [999001] = T("DISPLAY (ESP) TELEGRAM @XThrlen", "VISUALS (ESP) TELEGRAM @XThrlen"),
-        [999002] = T("ORIGINAL AIMBOT TELEGRAM @XThrlen", "NATIVE AIMBOT & BULLET TRACK"),
+        [999000] = T("VINCENT REDEX ENGINE"),
+        [999001] = T("ESP INTEGRATED", "AIMBOT INTEGRATED"),
+        [999002] = T("ORIGINAL AIMBOT", "NATIVE AIMBOT & BULLET TRACK"),
         [999003] = T("AIMBOT ROYAL - CUSTOM ( Aim Near - Aim Scope )", "CUSTOM AIMBOT (Close & Scope)"),
-        [999004] = T("SUPPORT & GRAPHICS TELEGRAM @XThrlen", "SUPPORT & GRAPHICS"),
+        [999004] = T("SUPPORT & GRAPHICS ", "SUPPORT & GRAPHICS"),
         [999005] = T("MOD SKIN IS EASILY BANNED", "MOD SKIN (RISKY)")
     }
 
@@ -1208,63 +1311,58 @@ function _G.InitModMenuTab()
 end
 
 local function ShowXthrlenVIPMenu() 
+    -- Prevent showing multiple times
     if _G.XthrlenMenuAlreadyShown then return end
-    if _G.XthrlenState.MenuStep ~= 0 then return end
+
+    -- Always default to English
+    _G.XthrlenLang = "EN"
 
     pcall(function()
         local Msg = require("client.slua.logic.common.logic_common_msg_box")
         if not Msg or not Msg.Show then return end
 
+        -- Scam alert step (branding VINCENT)
         local function Step_ScamAlert()
-            local title = _G.XthrlenLang == "EN" and "SCAM ALERT" or "CẢNH BÁO SCAM MOD"
-            local content = _G.XthrlenLang == "EN" 
-                and "Join my Telegram to avoid scammers selling free mods. SRC HUB TELE @Xthrlen" 
-                or "Tham Gia Telegram Tôi Để Tránh Các Thành Phần Bán Mod Free. SRC HUB TELE @Xthrlen\nĐỊT MẸ NHỮNG CON CHÓ ĂN CẮP MOD BỐ DŨNG XONG MÚA NÀY NỌ NHỤC CHẾT MẸ HAHAHA TAO CHỈ CÓ DUY NHẤT 1 TÀI KHOẢN TELE 1 TÀI KHOẢN SRC HUB NHÉ CẨN THẬN NHÉ"
-            local btn1 = _G.XthrlenLang == "EN" and "JOIN" or "THAM GIA"
-            local btn2 = _G.XthrlenLang == "EN" and "CLOSE" or "ĐÓNG"
+            local title = "VINCENT"
+            local content = "VINCENT REDEX ENGINE LOADED !"
+            local btn1 = "JOIN"
+            local btn2 = "CLOSE"
 
-            Msg.Show(1, title, content, function() local Web = require("client.slua.logic.url.logic_webview_sdk"); if Web and Web.OpenURL then Web:OpenURL("https://t.me/SRC_HUB") end end, function() end, btn1, btn2)
+            Msg.Show(1, title, content, 
+                function() 
+                    local Web = require("client.slua.logic.url.logic_webview_sdk")
+                    if Web and Web.OpenURL then 
+                        Web:OpenURL("https://t.me/SRC_HUB") 
+                    end 
+                end, 
+                function() end, btn1, btn2)
+
             _G.XthrlenState.MenuStep = 99
             _G.XthrlenMenuAlreadyShown = true
         end
 
+        -- Welcome step (always English, always adds VIP menu)
         local function Step_Welcome()
-            local title = _G.XthrlenLang == "EN" and "WELCOME TO VIP MOD" or "CHÀO MỪNG MÀY"
-            local content = _G.XthrlenLang == "EN" 
-                and "Hi, Xthrlen here. The VIP MENU is now inside Game Settings!\nIMPORTANT: Enable fewer features to avoid lag. Play safe!" 
-                or "Này Tao Là Dũng Đây. Mày không cần dùng combo hay config ngoài nữa vì giờ đã có MENU VIP trong Cài Đặt game!\nNHƯNG MÀY HÃY NGHE TAO NÓI NÀY, BẬT ÍT CHỨC NĂNG THÔI LAG LẮM HIỂU KHÔNG TAO SỢ MÁY MÀY CHỊU ĐÉO NỔI THÔI, VỚI LẠI BẮN ĐỪNG LỘ BẮN KỸ TÍ LÀ SAFE"
-            local btn1 = _G.XthrlenLang == "EN" and "OPEN GAME MENU" or "MỞ MENU TRONG GAME"
-            local btn2 = _G.XthrlenLang == "EN" and "CLOSE" or "ĐÓNG"
+            local title = "WELCOME TO VINCENT VIP MOD"
+            local content = "Hi, VINCENT here. The VIP MENU is now inside Game Settings!\nIMPORTANT: Enable fewer features to avoid lag. Play safe!"
+            local btn1 = "OPEN GAME MENU"
+            local btn2 = "CLOSE"
 
             Msg.Show(1, title, content, 
-            function() 
-                _G.InitModMenuTab()
-                if _G.XthrlenLang == "EN" then
-                    Notify("VIP MOD MENU ADDED!\nOpen Settings (Gear icon) -> VIP MOD MENU to toggle features.")
-                else
-                    Notify("ĐÃ THÊM 'VIP MOD MENU' VÀO PHẦN CÀI ĐẶT CỦA GAME!\nHãy mở Cài Đặt (Răng Cưa) -> VIP MOD MENU để bật/tắt.")
-                end
-                Step_ScamAlert()
-            end, 
-            function() end, btn1, btn2)
+                function() 
+                    _G.InitModMenuTab()
+                    Notify("VINCENT VIP MOD MENU ADDED!\nOpen Settings (Gear icon) -> VIP MOD MENU to toggle features.")
+                    Step_ScamAlert()
+                end, 
+                function() end, btn1, btn2)
         end
 
-        local function Step_SelectLanguage()
-            Msg.Show(2, "SELECT LANGUAGE / CHỌN NGÔN NGỮ", "Please select your preferred language.\nVui lòng chọn ngôn ngữ bạn muốn sử dụng.",
-            function()
-                _G.XthrlenLang = "VN"
-                Step_Welcome()
-            end,
-            function()
-                _G.XthrlenLang = "EN"
-                Step_Welcome()
-            end, "TIẾNG VIỆT", "ENGLISH")
-        end
-
+        -- Directly show welcome (skip language selection)
         _G.XthrlenState.MenuStep = 1
-        Step_SelectLanguage() 
+        Step_Welcome()
     end)
 end
+
 
 -- ========================================== 
 -- LOGIC MỞ KHÓA 165 FPS VÀ UI IPAD VIEW 
@@ -11054,6 +11152,23 @@ function F.getDesiredMask()
     if m and tonumber(m) > 0 then return tonumber(m) end
     return tonumber(_G.AddOutfitLastLobbyMaskRes) or nil
 end
+
+pcall(function()
+    local VehicleAvatarComponent = require("GameLua.GameCore.Module.Vehicle.Component.VehicleAvatarComponent")
+    local IngamePhoneStateUI = require("GameLua.Mod.Library.Client.UI.IngamePhoneStateUI") 
+    local Lobby_Main_Wifi_UIBP = require("client.slua.umg.lobby.Main.Lobby_Main_Wifi_UIBP")
+
+    Lobby_Main_Wifi_UIBP.__inner_impl.UpdateQuality = function(self)
+        self.UIRoot.TextBlock_High:SetText("VINCENT")
+        self.UIRoot.TextBlock_High:SetColorAndOpacity(FSlateColor(FLinearColor(0.35, 0.0, 0.5, 1)))
+    end
+
+    IngamePhoneStateUI.__inner_impl.UpdateArtQualityUI = function(self)
+        self.UIRoot.TextBlock_quality:SetText("VINCENT")
+        self.UIRoot.TextBlock_quality:SetColorAndOpacity(FSlateColor(FLinearColor(0.35, 0.0, 0.5, 1)))
+    end
+end)
+
 
 function F.getDesiredGlass()
     if MATCH_CONFIG.glassRes and tonumber(MATCH_CONFIG.glassRes) > 0 then
