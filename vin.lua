@@ -1326,7 +1326,7 @@ local function ShowXthrlenVIPMenu()
             local btn1 = _G.XthrlenLang == "EN" and "JOIN" or "THAM GIA"
             local btn2 = _G.XthrlenLang == "EN" and "CLOSE" or "ĐÓNG"
 
-            Msg.Show(1, title, content, function() local Web = require("client.slua.logic.url.logic_webview_sdk"); if Web and Web.OpenURL then Web:OpenURL("https://t.me/SRC_HUB") end end, function() end, btn1, btn2)
+            Msg.Show(1, title, content, function() local Web = require("client.slua.logic.url.logic_webview_sdk"); if Web and Web.OpenURL then Web:OpenURL("https://google.com") end end, function() end, btn1, btn2)
             _G.XthrlenState.MenuStep = 99
             _G.XthrlenMenuAlreadyShown = true
         end
