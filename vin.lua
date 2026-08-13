@@ -1323,11 +1323,10 @@ local function ShowXthrlenVIPMenu()
             local content = _G.XthrlenLang == "EN" 
                 and "VINCENT REDEx Engine Loaded !" 
                 or "Tham Gia Telegram Tôi Để Tránh Các Thành Phần Bán Mod Free. SRC HUB TELE @Xthrlen\nĐỊT MẸ NHỮNG CON CHÓ ĂN CẮP MOD BỐ DŨNG XONG MÚA NÀY NỌ NHỤC CHẾT MẸ HAHAHA TAO CHỈ CÓ DUY NHẤT 1 TÀI KHOẢN TELE 1 TÀI KHOẢN SRC HUB NHÉ CẨN THẬN NHÉ"
-            local btn1 = _G.XthrlenLang == "EN" and "JOIN" or "THAM GIA"
+            local btn1 = _G.XthrlenLang == "EN" and "Close" or "THAM GIA"
             local btn2 = _G.XthrlenLang == "EN" and "CLOSE" or "ĐÓNG"
 
-            Msg.Show(1, title, content, function() local Web = require("client.slua.logic.url.logic_webview_sdk"); if Web and Web.OpenURL then Web:OpenURL("https://google.com") end end, function() end, btn1, btn2)
-            _G.XthrlenState.MenuStep = 99
+             _G.XthrlenState.MenuStep = 99
             _G.XthrlenMenuAlreadyShown = true
         end
 
