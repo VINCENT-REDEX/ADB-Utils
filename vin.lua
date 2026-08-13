@@ -2574,7 +2574,7 @@ local function CreateEnemyCounterWidget()
         require("game_frontend_hud").AddToContainer(UIContainers.Top, btn, 10500)
         
         if btn.RichText_Content then
-            btn.RichText_Content:SetText("Kẻ Địch: 0  |  Gần Nhất: 0m")
+            btn.RichText_Content:SetText("Enemies: 0  |  Nearest: 0m")
             local fontInfo = btn.RichText_Content.Font
             if fontInfo then fontInfo.Size = 16 btn.RichText_Content:SetFont(fontInfo) end
         end
