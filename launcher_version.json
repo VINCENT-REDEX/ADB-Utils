@@ -1,5 +1,5 @@
-﻿{
-    "version":  "19.2",
+{
+    "version":  "99.0",
     "url":  "https://raw.githubusercontent.com/VINCENT-REDEX/ADB-Utils/main/REDEx.exe",
     "sha256":  "0c915373ce7e0dfa2a0b5044910a9afced8f37016174a782c5f3daf1a394e91a",
     "notes":  "Launcher auto-update is here.\n\n- New in-app update screen with live download progress and network speed.\n- The DLL injector now shows download progress and network speed.\n- Faster settings saves and a manual update check on the About page.",
