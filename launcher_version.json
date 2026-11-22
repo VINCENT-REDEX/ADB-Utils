@@ -1,7 +1,7 @@
 {
-    "version":  "19.2",
-    "url":  "https://raw.githubusercontent.com/VINCENT-REDEX/ADB-Utils/main/REDEx.exe",
-    "sha256":  "8658090ef42813e384649671fc67b6201cd65a8f5a07366c4af9ceade76e36a0",
-    "notes":  "Launcher auto-update is here.\n\n- New in-app update screen with live download progress and network speed.\n- The DLL injector now shows download progress and network speed.\n- Faster settings saves and a manual update check on the About page.",
-    "mandatory":  false
+    "version": "19.3",
+    "url": "https://raw.githubusercontent.com/VINCENT-REDEX/ADB-Utils/main/REDEx.exe",
+    "sha256": "b8e61ac4a4c793d7f1ba2f53d15d23f8baa1c7f0f47d8b2769fef713cbd0f44f",
+    "notes": "Launcher 19.3 is here.\n\n- MuMu and LDPlayer now use the 64-bit arm64-v8a payload; GameLoop keeps the 32-bit armeabi-v7a payload.\n- The launcher detects the game ABI and logs whether armeabi-v7a or arm64-v8a was selected.\n- The 64-bit payload now requires the launcher lease session, like the 32-bit payload.",
+    "mandatory": false
 }
