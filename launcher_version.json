@@ -3,5 +3,5 @@
     "url": "https://raw.githubusercontent.com/VINCENT-REDEX/ADB-Utils/main/REDEx.exe",
     "sha256": "162618589cf668c99b9fa7fd81666d448554a353ecaa983a95f6bc5d9e88472f",
     "notes": "Launcher 19.4 is here.\n\n- Discord Rich Presence now shows the page you are on, the active launch status and the launcher version.\n- Presence uses the REDEx R mark and stays disabled for screenshot and automated runs.",
-    "mandatory": false
+    "mandatory": true
 }
