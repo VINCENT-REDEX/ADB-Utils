@@ -3,5 +3,5 @@
     "url":  "https://raw.githubusercontent.com/VINCENT-REDEX/ADB-Utils/main/REDEx-Loop/REDEx-Loop.exe",
     "sha256":  "1618b3cc21ece5e3276e4c508fee2b1e034fc34cbef394b6309e62a576caf7b2",
     "notes":  "REDEx-Loop is live.\n\n- Adds the self-updating launcher with verified HTTPS downloads.\n- Bootstraps ADB, the injector and the payload only when needed.\n- Cleans local and emulator payload files after every attempt.",
-    "mandatory":  false
+    "mandatory":  true
 }
